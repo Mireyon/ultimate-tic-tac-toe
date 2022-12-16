@@ -1,4 +1,6 @@
+import random
 import numpy as np
+from copy import deepcopy
 from monte_carlo_tree_search import Node, MCTS
 
 from kivy.app import App
@@ -28,18 +30,56 @@ Config.set('graphics', 'resizable', '0')
 Config.set('graphics', 'height', height)
 Config.set('graphics', 'width', width)
 
-class State(list):
-    def __init__(self, instance, **kwargs):
-        super(State, self).__init__(**kwargs)
-        self.UTTTGrid_instance = instance
+# class State(list):
+#     def __init__(self, instance, matrix, **kwargs):
+#         super(State, self).__init__(**kwargs)
+#         self.UTTTGrid_instance = instance
+#         self.active_index = self.UTTTGrid_instance.active_index
+#         self.last_move = None
+#         self.big_matrix = matrix
 
-    def get_valid_moves(self):
-        big_cell_index = 8 - self.UTTTGrid_instance.active_index
-        small_cell_indexes = np.where(self[big_cell_index]==0)[0]
-        return (big_cell_index, small_cell_indexes)
+#     def get_valid_moves(self):
+#         big_cell_index = 8 - self.active_index
+#         small_cell_indexes = np.where(self[big_cell_index]==0)[0]
+#         return small_cell_indexes
 
-    def display(self):
-        print(f'\n{np.array(self)}')
+#     def make_move(self, index):
+#         Player.change_player()
+#         big_cell_index = 8 - self.active_index
+#         print(np.array(self))
+#         self[big_cell_index][index] = Player.token_value
+#         self.active_index = index
+
+#         self.last_move = (big_cell_index, index)
+#         return self
+
+#     def make_random_move(self):
+#         Player.change_player()
+#         big_cell_index = 8 - self.active_index
+#         index = random.choice(self.get_valid_moves())
+#         self[big_cell_index][index] = Player.token_value
+#         self.active_index = index
+
+#         self.last_move = (big_cell_index, index)
+#         return self
+
+#     def get_winner(self):
+#         matrix2D = self.big_matrix.reshape((3,3))
+
+#         diagonal = np.sum(np.diagonal(matrix2D))
+#         opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
+#         lines = np.sum(matrix2D, axis=1)
+#         columns = np.sum(matrix2D, axis=0)
+
+#         if three_values[0]==diagonal or three_values[0]==opposite_diagonal or three_values[0] in lines or three_values[0] in columns:
+#             return 1
+#         elif three_values[1]==diagonal or three_values[1]==opposite_diagonal or three_values[1] in lines or three_values[1] in columns:
+#             return -1
+#         else:
+#             return 0
+
+#     def display(self):
+#         print(f'\n{np.array(self)}')
 
 # Manages the actual player
 class Player:
@@ -138,6 +178,7 @@ class TTTGrid(GridLayout):
         self.update_cell_matrix(instance)
 
         if(self.parent.AI_active==True and Player.token=='O'):
+
             self.parent.AI_play()
 
 # Create the UTTT grid with small TTTs
@@ -150,12 +191,14 @@ class UTTTGrid(GridLayout):
         self.active_index = 8
 
         self.AI_active = False
-        self.complete_matrix = State(self)
+        # self.complete_matrix = State(self, self.matrix)
 
         for _ in range(N):
             small_grid = TTTGrid()
             self.add_widget(small_grid)
-            self.complete_matrix.append(small_grid.matrix)
+            # self.complete_matrix.append(deepcopy(small_grid.matrix))
+
+        # self.tree = MCTS(self.complete_matrix)
     
     def change_box(self, i):
         # Disable all buttons
@@ -177,8 +220,6 @@ class UTTTGrid(GridLayout):
                 active_button.disabled = False
 
         self.active_index = i
-        self.complete_matrix.display()
-        self.complete_matrix.get_valid_moves()
 
     def update_complete_cells(self):
         self.matrix[8-self.active_index] = mark_full

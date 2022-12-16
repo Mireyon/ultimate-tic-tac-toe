@@ -1,5 +1,6 @@
 import random
 import math
+import numpy as np
 
 class Node:
   def __init__(self, state, parent=None):
@@ -20,11 +21,13 @@ class Node:
 
   def fully_expanded(self):
     # Check if all sub-boards in the state have been explored
-    return len(self.children) == len(self.state.get_valid_moves())
+    
+    return len(self.children) == len(np.where(np.array(self.state)==0)[0])
 
+  # Loop too long
   def rollout(self, state):
     # Play the game to completion by making random moves
-    while state.get_valid_moves():
+    while len(state.get_valid_moves()):
       state = state.make_random_move()
     return state.get_winner()
 
@@ -33,7 +36,10 @@ class Node:
     best_score = -float("inf")
     best_child = None
     for child in self.children:
-      score = child.reward / child.visits + c_param * math.sqrt(math.log(self.visits) / child.visits)
+      if(child.visits==0):
+        score = 0
+      else:
+        score = child.reward / child.visits + c_param * math.sqrt(math.log(self.visits) / child.visits)
       if score > best_score:
         best_score = score
         best_child = child
@@ -51,7 +57,7 @@ class MCTS:
         node = node.best_child()
 
       # Expansion
-      if node.state.get_valid_moves():
+      if len(node.state.get_valid_moves()):
         move = random.choice(node.state.get_valid_moves())
         child_state = node.state.make_move(move)
         node = node.add_child(child_state)
