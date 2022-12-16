@@ -1,4 +1,5 @@
 import numpy as np
+from monte_carlo_tree_search import Node, MCTS
 
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
@@ -26,6 +27,19 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Config.set('graphics', 'resizable', '0')
 Config.set('graphics', 'height', height)
 Config.set('graphics', 'width', width)
+
+class State(list):
+    def __init__(self, instance, **kwargs):
+        super(State, self).__init__(**kwargs)
+        self.UTTTGrid_instance = instance
+
+    def get_valid_moves(self):
+        big_cell_index = 8 - self.UTTTGrid_instance.active_index
+        small_cell_indexes = np.where(self[big_cell_index]==0)[0]
+        return (big_cell_index, small_cell_indexes)
+
+    def display(self):
+        print(f'\n{np.array(self)}')
 
 # Manages the actual player
 class Player:
@@ -136,9 +150,12 @@ class UTTTGrid(GridLayout):
         self.active_index = 8
 
         self.AI_active = False
+        self.complete_matrix = State(self)
 
         for _ in range(N):
-            self.add_widget(TTTGrid())
+            small_grid = TTTGrid()
+            self.add_widget(small_grid)
+            self.complete_matrix.append(small_grid.matrix)
     
     def change_box(self, i):
         # Disable all buttons
@@ -160,6 +177,8 @@ class UTTTGrid(GridLayout):
                 active_button.disabled = False
 
         self.active_index = i
+        self.complete_matrix.display()
+        self.complete_matrix.get_valid_moves()
 
     def update_complete_cells(self):
         self.matrix[8-self.active_index] = mark_full
