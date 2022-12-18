@@ -155,7 +155,12 @@ class UTTTGrid(GridLayout):
         for _ in range(N):
             small_grid = TTTGrid()
             self.add_widget(small_grid)
-            self.complete_matrix.append(small_grid.matrix)
+            self.complete_matrix.append(small_grid.matrix.copy())
+
+    def update_complete_matrix(self):
+        self.complete_matrix = State(self)
+        for small_grid in self.children:
+            self.complete_matrix.append(small_grid.matrix.copy())
     
     def change_box(self, i):
         # Disable all buttons
@@ -177,8 +182,8 @@ class UTTTGrid(GridLayout):
                 active_button.disabled = False
 
         self.active_index = i
+        # self.update_complete_matrix()
         self.complete_matrix.display()
-        self.complete_matrix.get_valid_moves()
 
     def update_complete_cells(self):
         self.matrix[8-self.active_index] = mark_full
