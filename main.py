@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from monte_carlo_tree_search import Node, MCTS
 
@@ -31,12 +32,86 @@ Config.set('graphics', 'width', width)
 class State(list):
     def __init__(self, instance, **kwargs):
         super(State, self).__init__(**kwargs)
-        self.UTTTGrid_instance = instance
+        self.instance = instance
+        self.active_index = 8 - instance.active_index
+        self.last_move = None
+        self.last_moves = []
+        self.big_matrix = np.zeros(N)
+
+    def update(self):
+        self.matrix = []
+        for array in self:
+            self.matrix.append(array.copy())
+
+    def update_big_mat(self, i):
+        self.big_matrix[i] = Player.token_value
+
+    def update_matrix(self):
+        for i, matrix in enumerate(self.matrix):
+            matrix2D = matrix.reshape((3,3))
+            diagonal = np.sum(np.diagonal(matrix2D))
+            opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
+            lines = np.isin(np.sum(matrix2D, axis=1), three_values)
+            columns = np.isin(np.sum(matrix2D, axis=0), three_values)
+            cell_completed = np.all(matrix2D)
+            if diagonal in three_values or opposite_diagonal in three_values or lines.any() or columns.any():
+                self.update_big_mat(i)
+
+            elif cell_completed:
+                self.big_matrix[i] = 5
 
     def get_valid_moves(self):
-        big_cell_index = 8 - self.UTTTGrid_instance.active_index
-        small_cell_indexes = np.where(self[big_cell_index]==0)[0]
-        return (big_cell_index, small_cell_indexes)
+        big_cell_index = self.active_index
+        small_cell_indexes = np.where(self.matrix[big_cell_index]==0)[0]
+        return small_cell_indexes
+
+    def make_move(self, index):
+        Player.change_player()
+        self.update_matrix()
+        big_cell_index = self.active_index
+        self.matrix[big_cell_index][index] = Player.token_value
+        self.active_index = index
+
+        self.last_move = (big_cell_index, index)
+        self.last_moves.append((big_cell_index, index))
+        return self
+
+    def make_random_move(self):
+        Player.change_player()
+        self.update_matrix()
+        big_cell_index = self.active_index
+        index = random.choice(self.get_valid_moves())
+        self.matrix[big_cell_index][index] = Player.token_value
+        self.active_index = index
+
+        self.last_move = (big_cell_index, index)
+        self.last_moves.append((big_cell_index, index))
+        return self
+
+    def reset(self): 
+        self.update()
+        self.big_matrix = np.zeros(N)
+
+    def get_winner(self):
+        print(self.last_moves)
+        self.last_moves = []
+        matrix2D = self.big_matrix.reshape((3,3))
+
+        diagonal = np.sum(np.diagonal(matrix2D))
+        opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
+        lines = np.sum(matrix2D, axis=1)
+        columns = np.sum(matrix2D, axis=0)
+
+        self.reset()
+        if three_values[0]==diagonal or three_values[0]==opposite_diagonal or three_values[0] in lines or three_values[0] in columns:
+            print(1)
+            return 1
+        elif three_values[1]==diagonal or three_values[1]==opposite_diagonal or three_values[1] in lines or three_values[1] in columns:
+            print(-1)
+            return -1
+        else:
+            print(0)
+            return 0
 
     def display(self):
         print(f'\n{np.array(self)}')
@@ -157,6 +232,9 @@ class UTTTGrid(GridLayout):
             self.add_widget(small_grid)
             self.complete_matrix.append(small_grid.matrix.copy())
 
+        self.complete_matrix.update()
+        self.tree = MCTS(self.complete_matrix)
+
     def update_complete_matrix(self):
         self.complete_matrix = State(self)
         for small_grid in self.children:
@@ -189,17 +267,20 @@ class UTTTGrid(GridLayout):
         self.matrix[8-self.active_index] = mark_full
 
     def AI_play(self, auto = False):
-        playable_sub_cell_index = np.where(self.children[self.active_index].matrix==0)[0]
-        np.random.shuffle(playable_sub_cell_index)
-        if(len(playable_sub_cell_index)==0):
-            return
-        playable_sub_cell_index = 8 - playable_sub_cell_index[0]
+        # playable_sub_cell_index = np.where(self.children[self.active_index].matrix==0)[0]
+        # np.random.shuffle(playable_sub_cell_index)
+        # if(len(playable_sub_cell_index)==0):
+        #     return
+        # playable_sub_cell_index = 8 - playable_sub_cell_index[0]
 
-        button = self.children[self.active_index].children[playable_sub_cell_index]
-        button.trigger_action(0.1)
+        # button = self.children[self.active_index].children[playable_sub_cell_index]
+        # button.trigger_action(0.1)
 
-        if(auto and not self.disabled):
-            self.AI_play(True)
+        # if(auto and not self.disabled):
+        #     self.AI_play(True)
+        self.tree.search(10)
+        best_move = self.tree.best_move()
+        print(best_move)
 
 # Manages the layout of the game
 class UTTT(App):
