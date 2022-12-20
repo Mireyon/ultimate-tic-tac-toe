@@ -29,71 +29,82 @@ Config.set('graphics', 'resizable', '0')
 Config.set('graphics', 'height', height)
 Config.set('graphics', 'width', width)
 
-class State(list):
-    def __init__(self, instance, **kwargs):
+class State():
+    def __init__(self, **kwargs):
         super(State, self).__init__(**kwargs)
-        self.instance = instance
-        self.active_index = 8 - instance.active_index
         self.last_move = None
         self.last_moves = []
+        self.starting_matrix = np.zeros((N,N))
+        self.matrix = np.zeros((N,N))
         self.big_matrix = np.zeros(N)
+        self.active_index = None
 
-    def update(self):
-        self.matrix = []
-        for array in self:
-            self.matrix.append(array.copy())
+    def starting_state(self, current_matrix, big_matrix, active_index):
+        self.starting_matrix = current_matrix.copy()
+        self.starting_big_matrix = big_matrix.copy()
+        self.starting_active_index = 8 - active_index
 
-    def update_big_mat(self, i):
-        self.big_matrix[i] = Player.token_value
+        self.matrix = current_matrix.copy()
+        self.big_matrix = big_matrix.copy()
+        self.active_index = 8 - active_index
+        StatePlayer.token = Player.token
+        StatePlayer.token_value = Player.token_value
 
     def update_matrix(self):
+        list_playable_cells = []
         for i, matrix in enumerate(self.matrix):
-            matrix2D = matrix.reshape((3,3))
-            diagonal = np.sum(np.diagonal(matrix2D))
-            opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
-            lines = np.isin(np.sum(matrix2D, axis=1), three_values)
-            columns = np.isin(np.sum(matrix2D, axis=0), three_values)
-            cell_completed = np.all(matrix2D)
-            if diagonal in three_values or opposite_diagonal in three_values or lines.any() or columns.any():
-                self.update_big_mat(i)
+            if(self.big_matrix[i]==0):
+                matrix2D = matrix.reshape((3,3))
+                diagonal = np.sum(np.diagonal(matrix2D))
+                opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
+                lines = np.isin(np.sum(matrix2D, axis=1), three_values)
+                columns = np.isin(np.sum(matrix2D, axis=0), three_values)
+                cell_completed = np.all(matrix2D)
+                if diagonal in three_values or opposite_diagonal in three_values or lines.any() or columns.any():
+                    self.big_matrix[i] = StatePlayer.token_value
 
-            elif cell_completed:
-                self.big_matrix[i] = 5
+                elif cell_completed:
+                    self.big_matrix[i] = 5
+
+                else:
+                    list_playable_cells.append(i)
+        return list_playable_cells
 
     def get_valid_moves(self):
-        big_cell_index = self.active_index
-        small_cell_indexes = np.where(self.matrix[big_cell_index]==0)[0]
+        # Update matrix and check if the active index corresponds to a playable cell
+        list_playable_cells = self.update_matrix()
+        if(len(list_playable_cells)==0):
+            return []
+        if(self.active_index not in list_playable_cells):
+            self.active_index = np.min(list_playable_cells)
+        small_cell_indexes = np.where(self.matrix[self.active_index]==0)[0]
         return small_cell_indexes
 
     def make_move(self, index):
-        Player.change_player()
-        self.update_matrix()
-        big_cell_index = self.active_index
-        self.matrix[big_cell_index][index] = Player.token_value
-        self.active_index = index
+        self.matrix[self.active_index][index] = StatePlayer.token_value
 
-        self.last_move = (big_cell_index, index)
-        self.last_moves.append((big_cell_index, index))
+        self.last_moves.append((self.active_index, index))
+
+        self.active_index = index
+        StatePlayer.change_player()
         return self
 
-    def make_random_move(self):
-        Player.change_player()
-        self.update_matrix()
-        big_cell_index = self.active_index
-        index = random.choice(self.get_valid_moves())
-        self.matrix[big_cell_index][index] = Player.token_value
-        self.active_index = index
+    def make_random_move(self, list_valid_indexes):
+        index = random.choice(list_valid_indexes)
+        self.matrix[self.active_index][index] = StatePlayer.token_value
 
-        self.last_move = (big_cell_index, index)
-        self.last_moves.append((big_cell_index, index))
+        self.last_moves.append((self.active_index, index))
+
+        self.active_index = index
+        StatePlayer.change_player()
         return self
 
-    def reset(self): 
-        self.update()
-        self.big_matrix = np.zeros(N)
+    def reset(self):
+        self.starting_state(self.starting_matrix, self.starting_big_matrix, 8 - self.starting_active_index)
 
     def get_winner(self):
-        print(self.last_moves)
+        self.last_move = self.last_moves[0]
+        # print(f'Move is {self.last_move}')
         self.last_moves = []
         matrix2D = self.big_matrix.reshape((3,3))
 
@@ -104,17 +115,30 @@ class State(list):
 
         self.reset()
         if three_values[0]==diagonal or three_values[0]==opposite_diagonal or three_values[0] in lines or three_values[0] in columns:
-            print(1)
+            # print(f'Score : 1')
             return 1
         elif three_values[1]==diagonal or three_values[1]==opposite_diagonal or three_values[1] in lines or three_values[1] in columns:
-            print(-1)
+            # print(f'Score : -1')
             return -1
         else:
-            print(0)
+            # print(f'Score : 0')
             return 0
 
     def display(self):
         print(f'\n{np.array(self)}')
+
+class StatePlayer:
+    token = "X"
+    token_value = 1
+
+    @staticmethod
+    def change_player():
+        if(StatePlayer.token=="X"):
+            StatePlayer.token = "O"
+            StatePlayer.token_value = 7
+        else:
+            StatePlayer.token = "X"
+            StatePlayer.token_value = 1
 
 # Manages the actual player
 class Player:
@@ -225,20 +249,13 @@ class UTTTGrid(GridLayout):
         self.active_index = 8
 
         self.AI_active = False
-        self.complete_matrix = State(self)
+        self.current_state = State()
 
         for _ in range(N):
             small_grid = TTTGrid()
             self.add_widget(small_grid)
-            self.complete_matrix.append(small_grid.matrix.copy())
 
-        self.complete_matrix.update()
-        self.tree = MCTS(self.complete_matrix)
-
-    def update_complete_matrix(self):
-        self.complete_matrix = State(self)
-        for small_grid in self.children:
-            self.complete_matrix.append(small_grid.matrix.copy())
+        # self.tree = MCTS(self.current_state)
     
     def change_box(self, i):
         # Disable all buttons
@@ -261,10 +278,16 @@ class UTTTGrid(GridLayout):
 
         self.active_index = i
         # self.update_complete_matrix()
-        self.complete_matrix.display()
+        # self.current_state.display()
 
     def update_complete_cells(self):
         self.matrix[8-self.active_index] = mark_full
+    
+    def get_complete_matrix(self):
+        matrix = []
+        for tttgrid in self.children:
+            matrix.insert(0, tttgrid.matrix.copy())
+        return np.array(matrix)
 
     def AI_play(self, auto = False):
         # playable_sub_cell_index = np.where(self.children[self.active_index].matrix==0)[0]
@@ -278,9 +301,14 @@ class UTTTGrid(GridLayout):
 
         # if(auto and not self.disabled):
         #     self.AI_play(True)
-        self.tree.search(10)
-        best_move = self.tree.best_move()
-        print(best_move)
+        current_matrix = self.get_complete_matrix()
+        self.current_state.starting_state(current_matrix, self.matrix, self.active_index)
+        tree = MCTS(self.current_state)
+        tree.search(100)
+        active_index, index = tree.best_move()
+        # print(active_index, index)
+        button = self.children[8 - active_index].children[8 - index]
+        button.trigger_action(0.1)
 
 # Manages the layout of the game
 class UTTT(App):
