@@ -30,111 +30,94 @@ Config.set('graphics', 'height', height)
 Config.set('graphics', 'width', width)
 
 class State():
-    def __init__(self, **kwargs):
-        # super(State, self).__init__(**kwargs)
-        self.last_move = None
-        # self.last_moves = []
-        self.starting_matrix = np.zeros((N,N))
-        self.matrix = np.zeros((N,N))
-        self.big_matrix = np.zeros(N)
-        self.active_index = None
-
-    def starting_state(self, current_matrix, big_matrix, active_index):
-        self.starting_matrix = current_matrix.copy()
-        self.starting_big_matrix = big_matrix.copy()
-        self.starting_active_index = 8 - active_index
-
-        self.matrix = current_matrix.copy()
-        self.big_matrix = big_matrix.copy()
-        self.active_index = 8 - active_index
-        StatePlayer.token = Player.token
-        StatePlayer.token_value = Player.token_value
-
-    def update_matrix(self):
-        list_playable_cells = []
-        for i, matrix in enumerate(self.matrix):
-            if(self.big_matrix[i]==0):
-                matrix2D = matrix.reshape((3,3))
-                diagonal = np.sum(np.diagonal(matrix2D))
-                opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
-                lines = np.isin(np.sum(matrix2D, axis=1), three_values)
-                columns = np.isin(np.sum(matrix2D, axis=0), three_values)
-                cell_completed = np.all(matrix2D)
-                if diagonal in three_values or opposite_diagonal in three_values or lines.any() or columns.any():
-                    self.big_matrix[i] = StatePlayer.token_value
-
-                elif cell_completed:
-                    self.big_matrix[i] = 5
-
-                else:
-                    list_playable_cells.append(i)
-        return list_playable_cells
+    def __init__(self, matrix, active_index, player):
+        self.matrix = matrix
+        self.active_index = active_index
+        self.player = player
 
     def get_valid_moves(self):
-        # Update matrix and check if the active index corresponds to a playable cell
-        list_playable_cells = self.update_matrix()
-        if(len(list_playable_cells)==0):
-            return []
-        if(self.active_index not in list_playable_cells):
-            self.active_index = np.min(list_playable_cells)
-        small_cell_indexes = np.where(self.matrix[self.active_index]==0)[0]
-        return small_cell_indexes
+        return np.where(self.matrix[self.active_index]==0)[0]
 
-    def make_move(self, index):
-        self.last_move = (self.active_index, index)
-        new_state = State()
-        new_state.starting_state(self.matrix, self.big_matrix, self.active_index)
-        new_state.matrix[self.active_index][index] = StatePlayer.token_value
-        new_state.last_move = self.last_move
-        new_state.active_index = index
-        StatePlayer.change_player()
+    # Modified
+    def make_move(self, move, new_player=None):
+        new_player = new_player if(new_player is not None) else StatePlayer()
+        board = State(self.matrix.copy(), self.active_index, new_player)
+        board.matrix[board.active_index][move] = board.player.token_value
+        board.active_index = move
+        board.player.change_player()
+        return board
 
-        return new_state#self #Changer par State(blablabla) avec le new state
-
-    def make_random_move(self, list_valid_indexes):
-        index = random.choice(list_valid_indexes)
-        return self.make_move(index)
-
-    def reset(self):
-        self.starting_state(self.starting_matrix, self.starting_big_matrix, 8 - self.starting_active_index)
+    def make_random_move(self):
+        valid_moves = self.get_valid_moves()
+        move = random.choice(valid_moves)
+        return self.make_move(move, new_player=self.player)
 
     def get_winner(self):
-        # self.last_move = self.last_moves[0]
-        # print(f'Move is {self.last_move}')
-        # self.last_moves = []
-        matrix2D = self.big_matrix.reshape((3,3))
+        matrix2D = self.matrix[self.active_index].reshape((3,3))
 
-        diagonal = np.sum(np.diagonal(matrix2D))
-        opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
-        lines = np.sum(matrix2D, axis=1)
-        columns = np.sum(matrix2D, axis=0)
+        # Check if there is a winner
+        for i in range(3):
+            # Check lines
+            if(np.sum(matrix2D[i]) in three_values):
+                return matrix2D[i][0]
+            # Check columns
+            if(np.sum(matrix2D[:,i]) in three_values):
+                return matrix2D[0][i]
+        # Check diagonals
+        if(np.sum(np.diagonal(matrix2D)) in three_values):
+            return matrix2D[0][0]
+        if(np.sum(np.diagonal(np.fliplr(matrix2D))) in three_values):
+            return matrix2D[0][2]
 
-        # self.reset()
-        if three_values[0]==diagonal or three_values[0]==opposite_diagonal or three_values[0] in lines or three_values[0] in columns:
-            # print(f'Score : 1')
-            return 1
-        elif three_values[1]==diagonal or three_values[1]==opposite_diagonal or three_values[1] in lines or three_values[1] in columns:
-            # print(f'Score : -1')
-            return -1
-        else:
-            # print(f'Score : 0')
+        # Check if the game is a draw
+        if(not np.any(self.matrix==0)):
             return 0
 
-    def display(self):
-        print(f'\n{np.array(self.matrix)}')
+        # Game is not over
+        return None
+
+    def is_terminal(self):
+        return self.get_winner() is not None
+
+    def get_score(self):
+        winner = self.get_winner()
+        if(winner == 1):
+            return 1
+        elif(winner == 7):
+            return -1
+        return 0
+
+    def __str__(self) -> str:
+        board = ''
+        for i in range(3):
+            for grid in self.matrix[i*3:i*3+3]:
+                board += np.array2string(grid[:3]) + ' '
+
+            board += '\n'
+            for grid in self.matrix[i*3:i*3+3]:
+                board += np.array2string(grid[3:6]) + ' '
+
+            board += '\n'
+            for grid in self.matrix[i*3:i*3+3]:
+                board += np.array2string(grid[6:9]) + ' '
+
+            board += '\n\n'
+        
+        return board
+
 
 class StatePlayer:
-    token = "X"
-    token_value = 1
+    def __init__(self, **kwargs):
+        self.token = "X"
+        self.token_value = 1
 
-    @staticmethod
-    def change_player():
-        if(StatePlayer.token=="X"):
-            StatePlayer.token = "O"
-            StatePlayer.token_value = 7
+    def change_player(self):
+        if(self.token=="X"):
+            self.token = "O"
+            self.token_value = 7
         else:
-            StatePlayer.token = "X"
-            StatePlayer.token_value = 1
+            self.token = "X"
+            self.token_value = 1
 
 # Manages the actual player
 class Player:
@@ -243,15 +226,11 @@ class UTTTGrid(GridLayout):
         self.spacing = 30
         self.matrix = np.zeros(N)
         self.active_index = 8
-
         self.AI_active = False
-        self.current_state = State()
 
         for _ in range(N):
             small_grid = TTTGrid()
             self.add_widget(small_grid)
-
-        self.tree = MCTS(self.current_state)
     
     def change_box(self, i):
         # Disable all buttons
@@ -286,13 +265,13 @@ class UTTTGrid(GridLayout):
         return np.array(matrix)
 
     def AI_play(self, auto = False):
-
-        current_matrix = self.get_complete_matrix()
-        self.current_state.starting_state(current_matrix, self.matrix, self.active_index)
-        tree = MCTS(self.current_state)
-        tree.search(10)
-        active_index, index = tree.best_move()
-        # print(active_index, index)
+        player = StatePlayer()
+        self.current_state = State(self.get_complete_matrix(), 8 - self.active_index, player)
+        tree = MCTS()
+        new_board = tree.search(self.current_state, 10)
+        print(new_board)
+        # print(new_board)
+        # print(index)
         # button = self.children[8 - active_index].children[8 - index]
         # button.trigger_action(0.1)
 
