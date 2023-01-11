@@ -8,7 +8,6 @@ class Node:
     self.children = []
     self.visits = 0
     self.reward = 0
-    self.last_move = None
 
   def add_child(self, child_state):
     child = Node(child_state, self)
@@ -25,12 +24,8 @@ class Node:
 
   def rollout(self, state):
     # Play the game to completion by making random moves
-    list_valid_indexes = state.get_valid_moves()
-    while len(list_valid_indexes):
-      state = state.make_random_move(list_valid_indexes)
-      list_valid_indexes = state.get_valid_moves()
-
-    self.last_move = state.last_moves[0]
+    while len(state.get_valid_moves()):
+      state = state.make_random_move()
     return state.get_winner()
 
   def best_child(self, c_param=1.4):
@@ -76,6 +71,5 @@ class MCTS:
     for child in self.root.children:
       if child.visits > best_score:
         best_score = child.visits
-        best_move = child.last_move
-        # print(f'Number of visits : {best_score} and move : {best_move}')
+        best_move = child.state.last_move
     return best_move
