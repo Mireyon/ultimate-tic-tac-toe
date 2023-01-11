@@ -24,7 +24,7 @@ class Node:
 
   def rollout(self, state):
     # Play the game to completion by making random moves
-    while len(state.get_valid_moves()):
+    while state.get_valid_moves():
       state = state.make_random_move()
     return state.get_winner()
 
@@ -44,14 +44,14 @@ class MCTS:
     self.root = Node(state)
 
   def search(self, iterations):
-    for i in range(iterations):
+    for _ in range(iterations):
       # Selection
       node = self.root
       while node.fully_expanded():
         node = node.best_child()
 
       # Expansion
-      if len(node.state.get_valid_moves()):
+      if node.state.get_valid_moves():
         move = random.choice(node.state.get_valid_moves())
         child_state = node.state.make_move(move)
         node = node.add_child(child_state)

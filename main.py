@@ -31,9 +31,9 @@ Config.set('graphics', 'width', width)
 
 class State():
     def __init__(self, **kwargs):
-        super(State, self).__init__(**kwargs)
+        # super(State, self).__init__(**kwargs)
         self.last_move = None
-        self.last_moves = []
+        # self.last_moves = []
         self.starting_matrix = np.zeros((N,N))
         self.matrix = np.zeros((N,N))
         self.big_matrix = np.zeros(N)
@@ -81,31 +81,27 @@ class State():
         return small_cell_indexes
 
     def make_move(self, index):
-        self.matrix[self.active_index][index] = StatePlayer.token_value
-
-        self.last_moves.append((self.active_index, index))
-
-        self.active_index = index
+        self.last_move = (self.active_index, index)
+        new_state = State()
+        new_state.starting_state(self.matrix, self.big_matrix, self.active_index)
+        new_state.matrix[self.active_index][index] = StatePlayer.token_value
+        new_state.last_move = self.last_move
+        new_state.active_index = index
         StatePlayer.change_player()
-        return self
+
+        return new_state#self #Changer par State(blablabla) avec le new state
 
     def make_random_move(self, list_valid_indexes):
         index = random.choice(list_valid_indexes)
-        self.matrix[self.active_index][index] = StatePlayer.token_value
-
-        self.last_moves.append((self.active_index, index))
-
-        self.active_index = index
-        StatePlayer.change_player()
-        return self
+        return self.make_move(index)
 
     def reset(self):
         self.starting_state(self.starting_matrix, self.starting_big_matrix, 8 - self.starting_active_index)
 
     def get_winner(self):
-        self.last_move = self.last_moves[0]
+        # self.last_move = self.last_moves[0]
         # print(f'Move is {self.last_move}')
-        self.last_moves = []
+        # self.last_moves = []
         matrix2D = self.big_matrix.reshape((3,3))
 
         diagonal = np.sum(np.diagonal(matrix2D))
@@ -113,7 +109,7 @@ class State():
         lines = np.sum(matrix2D, axis=1)
         columns = np.sum(matrix2D, axis=0)
 
-        self.reset()
+        # self.reset()
         if three_values[0]==diagonal or three_values[0]==opposite_diagonal or three_values[0] in lines or three_values[0] in columns:
             # print(f'Score : 1')
             return 1
@@ -125,7 +121,7 @@ class State():
             return 0
 
     def display(self):
-        print(f'\n{np.array(self)}')
+        print(f'\n{np.array(self.matrix)}')
 
 class StatePlayer:
     token = "X"
@@ -255,7 +251,7 @@ class UTTTGrid(GridLayout):
             small_grid = TTTGrid()
             self.add_widget(small_grid)
 
-        # self.tree = MCTS(self.current_state)
+        self.tree = MCTS(self.current_state)
     
     def change_box(self, i):
         # Disable all buttons
@@ -290,25 +286,15 @@ class UTTTGrid(GridLayout):
         return np.array(matrix)
 
     def AI_play(self, auto = False):
-        # playable_sub_cell_index = np.where(self.children[self.active_index].matrix==0)[0]
-        # np.random.shuffle(playable_sub_cell_index)
-        # if(len(playable_sub_cell_index)==0):
-        #     return
-        # playable_sub_cell_index = 8 - playable_sub_cell_index[0]
 
-        # button = self.children[self.active_index].children[playable_sub_cell_index]
-        # button.trigger_action(0.1)
-
-        # if(auto and not self.disabled):
-        #     self.AI_play(True)
         current_matrix = self.get_complete_matrix()
         self.current_state.starting_state(current_matrix, self.matrix, self.active_index)
         tree = MCTS(self.current_state)
-        tree.search(100)
+        tree.search(10)
         active_index, index = tree.best_move()
         # print(active_index, index)
-        button = self.children[8 - active_index].children[8 - index]
-        button.trigger_action(0.1)
+        # button = self.children[8 - active_index].children[8 - index]
+        # button.trigger_action(0.1)
 
 # Manages the layout of the game
 class UTTT(App):
