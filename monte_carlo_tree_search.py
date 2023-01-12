@@ -21,16 +21,20 @@ class MCTS:
     self.root = Node(state, name="root")
 
     for _ in range(iterations):
+      # print("Starting iteration")
       # Selection and Expansion
       node = self.select(self.root)
+      # print("Selected node")
       # Simulation
       winner = self.rollout(node.state)
+      # print("Simulated node")
       # Backpropagation
       self.backpropagate(node, winner)
+      # print("Backpropagated node")
     
     # # Debugging
-    # for child in self.root.children.values():
-    #   print(self.root.visits, child.visits, child.reward)
+    for child in self.root.children.values():
+      print(self.root.visits, child.visits, child.reward)
 
     # Return the best child of the root node
     return self.best_child(self.root)
