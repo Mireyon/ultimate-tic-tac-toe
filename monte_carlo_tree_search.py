@@ -27,6 +27,9 @@ class MCTS:
       # Backpropagation
       self.backpropagate(node, winner)
     
+    for child in self.root.children.values():
+      print(child, child.visits, child.reward)
+
     # Return the best child of the root node
     return self.best_child(self.root)
 
@@ -34,10 +37,8 @@ class MCTS:
     # Select the best child until a leaf node is reached
     while not node.state.is_terminal():
       if not node.is_fully_expanded:
-        # print("Not fully expanded")
         return self.expand(node)
       else:
-        # print("Select best child")
         node = self.best_child(node)
     return node
 
@@ -60,7 +61,8 @@ class MCTS:
   #To verify#####
   def rollout(self, state):
     # Play the game to completion by making random moves
-    while np.any(state.get_valid_moves()):
+    # while np.any(state.get_valid_moves()):
+    while not state.is_terminal():
       state = state.make_random_move()
     return state.get_score()
 

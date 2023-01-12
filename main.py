@@ -252,8 +252,6 @@ class UTTTGrid(GridLayout):
                 active_button.disabled = False
 
         self.active_index = i
-        # self.update_complete_matrix()
-        # self.current_state.display()
 
     def update_complete_cells(self):
         self.matrix[8-self.active_index] = mark_full
@@ -266,14 +264,13 @@ class UTTTGrid(GridLayout):
 
     def AI_play(self, auto = False):
         player = StatePlayer()
-        self.current_state = State(self.get_complete_matrix(), 8 - self.active_index, player)
+        current_matrix = self.get_complete_matrix()
+        self.current_state = State(current_matrix, 8 - self.active_index, player)
         tree = MCTS()
-        new_board = tree.search(self.current_state, 10)
-        print(new_board)
-        # print(new_board)
-        # print(index)
-        # button = self.children[8 - active_index].children[8 - index]
-        # button.trigger_action(0.1)
+        new_board = tree.search(self.current_state, 1000)
+        index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
+        button = self.children[self.active_index].children[8 - index]
+        button.trigger_action(0.1)
 
 # Manages the layout of the game
 class UTTT(App):
