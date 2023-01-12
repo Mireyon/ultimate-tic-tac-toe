@@ -38,9 +38,8 @@ class State():
     def get_valid_moves(self):
         return np.where(self.matrix[self.active_index]==0)[0]
 
-    # Modified
-    def make_move(self, move, new_player=None):
-        new_player = new_player if(new_player is not None) else StatePlayer()
+    def make_move(self, move):
+        new_player = StatePlayer(self.player)
         board = State(self.matrix.copy(), self.active_index, new_player)
         board.matrix[board.active_index][move] = board.player.token_value
         board.active_index = move
@@ -49,43 +48,32 @@ class State():
 
     def make_random_move(self):
         valid_moves = self.get_valid_moves()
+        if(len(valid_moves)==0):
+            print(self.active_index)
+            print(valid_moves)
         move = random.choice(valid_moves)
-        return self.make_move(move, new_player=self.player)
+        return self.make_move(move)
 
+    # A implémenter pour l'UTTT
     def get_winner(self):
         matrix2D = self.matrix[self.active_index].reshape((3,3))
+        
+        diagonal = np.sum(np.diagonal(matrix2D))
+        opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
+        lines = np.sum(matrix2D, axis=1)
+        columns = np.sum(matrix2D, axis=0)
 
-        # Check if there is a winner
-        for i in range(3):
-            # Check lines
-            if(np.sum(matrix2D[i]) in three_values):
-                return matrix2D[i][0]
-            # Check columns
-            if(np.sum(matrix2D[:,i]) in three_values):
-                return matrix2D[0][i]
-        # Check diagonals
-        if(np.sum(np.diagonal(matrix2D)) in three_values):
-            return matrix2D[0][0]
-        if(np.sum(np.diagonal(np.fliplr(matrix2D))) in three_values):
-            return matrix2D[0][2]
-
-        # Check if the game is a draw
-        if(not np.any(self.matrix==0)):
+        if three_values[0]==diagonal or three_values[0]==opposite_diagonal or three_values[0] in lines or three_values[0] in columns:
+            return 1
+        elif three_values[1]==diagonal or three_values[1]==opposite_diagonal or three_values[1] in lines or three_values[1] in columns:
+            return -1
+        elif(not np.any(self.matrix==0)):
             return 0
-
-        # Game is not over
-        return None
+        else:
+            return None
 
     def is_terminal(self):
         return self.get_winner() is not None
-
-    def get_score(self):
-        winner = self.get_winner()
-        if(winner == 1):
-            return 1
-        elif(winner == 7):
-            return -1
-        return 0
 
     def __str__(self) -> str:
         board = ''
@@ -107,9 +95,12 @@ class State():
 
 
 class StatePlayer:
-    def __init__(self, **kwargs):
+    def __init__(self, player=None):
         self.token = "X"
         self.token_value = 1
+        if(player is not None):
+            self.token = player.token
+            self.token_value = player.token_value
 
     def change_player(self):
         if(self.token=="X"):
@@ -268,9 +259,10 @@ class UTTTGrid(GridLayout):
         self.current_state = State(current_matrix, 8 - self.active_index, player)
         tree = MCTS()
         new_board = tree.search(self.current_state, 1000)
-        index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
-        button = self.children[self.active_index].children[8 - index]
-        button.trigger_action(0.1)
+        print(new_board)
+        # index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
+        # button = self.children[self.active_index].children[8 - index]
+        # button.trigger_action(0.1)
 
 # Manages the layout of the game
 class UTTT(App):

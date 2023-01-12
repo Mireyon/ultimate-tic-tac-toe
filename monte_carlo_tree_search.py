@@ -6,7 +6,8 @@ class Node:
   def __init__(self, state, parent=None, name='child'):
     self.name = name
     self.state = state
-    self.is_fully_expanded = self.state.is_terminal()
+    self.terminal = self.state.is_terminal()
+    self.is_fully_expanded = self.terminal
     self.parent = parent
     self.children = {}
     self.visits = 0
@@ -27,19 +28,19 @@ class MCTS:
       # Backpropagation
       self.backpropagate(node, winner)
     
-    for child in self.root.children.values():
-      print(child, child.visits, child.reward)
+    # # Debugging
+    # for child in self.root.children.values():
+    #   print(self.root.visits, child.visits, child.reward)
 
     # Return the best child of the root node
     return self.best_child(self.root)
 
   def select(self, node):
     # Select the best child until a leaf node is reached
-    while not node.state.is_terminal():
+    while not node.terminal:
       if not node.is_fully_expanded:
         return self.expand(node)
-      else:
-        node = self.best_child(node)
+      node = self.best_child(node)
     return node
 
   def expand(self, node):
@@ -55,16 +56,14 @@ class MCTS:
           node.is_fully_expanded = True
         return new_node
 
-    #Debugging
-    print("Not good if I arrived here")
+    # #Debugging
+    # print("Not good if I arrived here")
 
-  #To verify#####
   def rollout(self, state):
     # Play the game to completion by making random moves
-    # while np.any(state.get_valid_moves()):
     while not state.is_terminal():
       state = state.make_random_move()
-    return state.get_score()
+    return state.get_winner()
 
   def backpropagate(self, node, winner):
     # Update the node and its ancestors with the result of the simulation
@@ -73,14 +72,16 @@ class MCTS:
       node.reward += winner
       node = node.parent
 
-  # To verify #####
   def best_child(self, node, c_param=1.4):
     # Use the UCB formula to select the next child to explore
     best_score = -float("inf")
     best_child = None
     for child in node.children.values():
-      score = child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)
+      if child.state.player.token == 'X': current_player = -1
+      elif child.state.player.token == 'O': current_player = 1
+      score = current_player*child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)
       if score > best_score:
         best_score = score
         best_child = child
+
     return best_child
