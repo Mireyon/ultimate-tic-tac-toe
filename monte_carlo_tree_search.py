@@ -1,6 +1,7 @@
 import random
 import math
 import numpy as np
+import time
 
 class Node:
   def __init__(self, state, parent=None, name='child'):
@@ -20,6 +21,7 @@ class MCTS:
   def search(self, state, iterations=100):
     self.root = Node(state, name="root")
 
+    start = time.perf_counter()
     for _ in range(iterations):
       # print("Starting iteration")
       # Selection and Expansion
@@ -31,10 +33,12 @@ class MCTS:
       # Backpropagation
       self.backpropagate(node, winner)
       # print("Backpropagated node")
+    end = time.perf_counter()
+    print(f"Time taken: {end - start:0.4f} seconds")
     
     # # Debugging
-    for child in self.root.children.values():
-      print(self.root.visits, child.visits, child.reward)
+    # for child in self.root.children.values():
+    #   print(self.root.visits, child.visits, child.reward)
 
     # Return the best child of the root node
     return self.best_child(self.root)

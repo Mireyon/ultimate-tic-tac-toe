@@ -52,11 +52,6 @@ class State():
 
     def make_random_move(self):
         valid_moves = self.get_valid_moves()
-        # if(len(valid_moves)==0):
-        #     print(self.active_index)
-        #     print(valid_moves)
-        #     print(self)
-        #     print(self.big_matrix)
         move = random.choice(valid_moves)
         return self.make_move(move)
 
@@ -81,8 +76,6 @@ class State():
     def get_winner(self):
         self.check_small_boards()
         matrix2D = self.big_matrix.reshape((3,3))
-        # print(self.active_index)
-        # print(matrix2D)
 
         diagonal = np.sum(np.diagonal(matrix2D))
         opposite_diagonal = np.sum(np.diagonal(np.fliplr(matrix2D)))
