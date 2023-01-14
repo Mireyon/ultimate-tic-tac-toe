@@ -1,4 +1,5 @@
 from __init__ import *
+
 class Node:
   def __init__(self, state, parent=None, name='child'):
     self.name = name
@@ -16,13 +17,18 @@ class Node:
 class MCTS:
   def search(self, state, iterations=100):
     self.root = Node(state, name="root")
-    start = time.perf_counter()
+    # rollout_time = 0
+    # start = time.perf_counter()
     for _ in range(iterations):
       node = self.select(self.root)
+      # rollout_start = time.perf_counter()
       winner = self.rollout(node.state)
+      # rollout_end = time.perf_counter()
+      # rollout_time += rollout_end - rollout_start
       self.backpropagate(node, winner)
-    end = time.perf_counter()
-    print(f"Time taken: {end - start:0.4f} seconds")
+    # end = time.perf_counter()
+    # print(f"Rollout time taken: {rollout_time:0.4f} seconds")
+    # print(f"Time taken: {end - start:0.4f} seconds")
     
     # # Debugging
     # for child in self.root.children.values():
@@ -74,7 +80,6 @@ class MCTS:
     best_score = -float("inf")
     best_child = None
     for child in node.children.values():
-      print(child.visits, child.reward)
       if child.state.playerManager.player.token == playerManager.player_1.token: current_player = -1
       elif child.state.playerManager.player.token == playerManager.player_2.token: current_player = 1
       score = current_player*child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)

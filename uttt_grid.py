@@ -11,7 +11,7 @@ class UTTTGrid(GridLayout):
         super(UTTTGrid, self).__init__(**kwargs)
         self.cols = 3
         self.spacing = 30
-        self.matrix = np.ones(N)*empty_cell
+        self.matrix = np.ones(N, dtype=np.int8)*empty_cell
         self.active_index = 0
         self.AI_active = False
 
@@ -24,13 +24,15 @@ class UTTTGrid(GridLayout):
             for button in box.children:
                 button.disabled = True
 
-    def get_index(self, index):
+    def is_end(self):
         big_winner = GameLogic.get_winner(self.matrix)
         if(big_winner is not None):
-            print(f'Game is finished !')
+            print(f'Game is finished ! The winner is {big_winner} !')
             self.disabled = True
-            return None
+            return True
+        return False
 
+    def get_index(self, index):
         if(self.matrix[index]!=empty_cell):
             index = np.max(np.where(self.matrix==empty_cell))
         return index
@@ -57,32 +59,40 @@ class UTTTGrid(GridLayout):
         self.update_all()
         self.render()
         self.disable_all()
+        if(self.is_end()):
+            return
         index = self.get_index(index)
-        if(index is None):
-            return None
         self.active_index = index
-        self.enable_clickable_cells(index)
+        if(self.AI_active==True and playerManager.player==playerManager.player_2):
+            thread = Thread(target = self.AI_play, args = [])
+            thread.daemon = True
+            thread.start()
+        else:
+            self.enable_clickable_cells(index)
     
     def random_play(self):
         if(self.disabled==False):
             index = random.choice(np.where(self.children[self.active_index].matrix==empty_cell)[0])
             button = self.children[self.active_index].children[index]
             button.trigger_action(0.1)
-            time.sleep(0.1)
 
     def get_copy(self):
-        # matrix = []
-        # for tttgrid in self.children:
-        #     matrix.insert(0, tttgrid.matrix.copy())
-        # return np.array(matrix)
         return np.array([tttgrid.matrix.copy() for tttgrid in self.children])
 
     def AI_play(self):
         new_playerManager = playerManager.copy()
         current_matrix = self.get_copy()
-        self.current_state = State(current_matrix, self.active_index, new_playerManager)
+        self.current_state = State(current_matrix, self.active_index, new_playerManager, self.matrix.copy())
         tree = MCTS()
-        new_board = tree.search(self.current_state, 5)
+        new_board = tree.search(self.current_state, 1000)
         index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
         button = self.children[self.active_index].children[index]
         button.trigger_action(0.1)
+
+    def auto_play(self, dt):
+        # if(self.disabled==True):
+        #     App.get_running_app().restart(score = GameLogic.get_winner(self.matrix))
+        if(playerManager.player==playerManager.player_1):
+            self.random_play()
+        else:
+            self.AI_play()

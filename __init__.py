@@ -4,6 +4,7 @@ import math
 import numpy as np
 
 from kivy.app import App
+from kivy.core.window import Window
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.anchorlayout import AnchorLayout
@@ -14,11 +15,12 @@ from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.image import Image
 
+from kivy.clock import Clock
 from kivy.config import Config
 from kivy.graphics import Line, Color, Rectangle, Ellipse
 
 from player import PlayerManager
-from multiprocessing import Pool, Manager, freeze_support, Value, Process
+from threading import Thread
 
 # Global variables
 N = 9                           # Tic Tac Toe size of 3x3

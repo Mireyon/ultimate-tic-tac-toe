@@ -5,10 +5,10 @@ class TTTGrid(GridLayout):
     def __init__(self, **kwargs):
         super(TTTGrid, self).__init__(**kwargs)
         self.cols = 3
-        self.matrix = np.ones(N)*empty_cell
+        self.matrix = np.ones(N, dtype=np.int8)*empty_cell
 
         for i in range(N):
-            box = Button(text=str(i), background_color=(0.9,0.9,0.9,0.25), color=(0,0,0,1), disabled=False, font_size=40)
+            box = Button(text="", background_color=(0.9,0.9,0.9,0.25), color=(0,0,0,1), disabled=False, font_size=40)
             box.bind(on_press = self.press)
             self.add_widget(box)
         
@@ -29,7 +29,9 @@ class TTTGrid(GridLayout):
 
         playerManager.change_player()
         self.parent.move_to(index)
-        
-        if(self.parent.AI_active==True and playerManager.player==playerManager.player_2):
-            self.parent.AI_play()
+
+        # if(self.parent.AI_active==True and playerManager.player==playerManager.player_2):
+        #     # self.parent.AI_play()
+        #     thread = Thread(target = self.parent.AI_play, args = [])
+        #     thread.start()
         

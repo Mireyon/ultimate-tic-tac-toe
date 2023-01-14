@@ -3,9 +3,15 @@ from uttt_grid import UTTTGrid
 
 # Manages the layout of the game
 class UTTT(App):
-    def __init__(self, **kwargs):
+    def __init__(self, auto=None, score=[], **kwargs):
         super(UTTT, self).__init__(**kwargs)
         self.game = UTTTGrid()
+        self.auto = auto
+        self.score = score
+
+    def on_start(self, **kwargs):
+        if(self.auto is not None):
+            self.root.children[0].children[0].children[0].trigger_action(duration=0.1)
 
     def game_layout(self):
         main_layout = AnchorLayout(anchor_x='center', anchor_y='center')
@@ -29,20 +35,31 @@ class UTTT(App):
         screen_layout.add_widget(title_layout)
         screen_layout.add_widget(self.game_layout())
 
-        automate_button = Button(text="Auto", disabled=False)
-        automate_button.bind(on_press=self.automate)
+        random_button = Button(text="Random", disabled=False)
+        random_button.bind(on_press=self.automate)
 
         AI_button = ToggleButton(text='AI') 
         AI_button.bind(on_press=self.activateAI)
 
-        buttons_group = BoxLayout(orientation='horizontal', size_hint=(0.1,0.05))
-        buttons_group.add_widget(automate_button)
+        match_button = ToggleButton(text='Versus')
+        match_button.bind(on_press=self.matchAI)
+
+        buttons_group = BoxLayout(orientation='horizontal', size_hint=(0.3,0.05))
+        buttons_group.add_widget(random_button)
         buttons_group.add_widget(AI_button)
+        buttons_group.add_widget(match_button)
 
         screen_layout.add_widget(buttons_group)
         root.add_widget(screen_layout)
 
         return root
+
+    def restart(self, score):
+        Clock.unschedule(self.game.auto_play)
+        App.get_running_app().stop()
+        self.score.append(score)
+        new_app = UTTT(auto=True, score = self.score)
+        new_app.run()
 
     # Work in progress
     def automate(self, instance):
@@ -53,3 +70,11 @@ class UTTT(App):
             self.game.AI_active = True
         else:
             self.game.AI_active = False
+
+    def matchAI(self, instance):
+        if(instance.state=="down"):
+            Clock.unschedule(self.game.auto_play)
+            Clock.schedule_interval(self.game.auto_play, 0.1)
+        else:
+            Clock.unschedule(self.game.auto_play)
+            print(f'There were {len(self.score)} matches and the player 1 won {self.score.count(-1)} times, the player 2 won {self.score.count(1)} times and there were {self.score.count(0)} draws')
