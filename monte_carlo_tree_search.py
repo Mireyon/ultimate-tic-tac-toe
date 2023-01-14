@@ -1,8 +1,4 @@
-import random
-import math
-import numpy as np
-import time
-
+from __init__ import *
 class Node:
   def __init__(self, state, parent=None, name='child'):
     self.name = name
@@ -20,19 +16,11 @@ class Node:
 class MCTS:
   def search(self, state, iterations=100):
     self.root = Node(state, name="root")
-
     start = time.perf_counter()
     for _ in range(iterations):
-      # print("Starting iteration")
-      # Selection and Expansion
       node = self.select(self.root)
-      # print("Selected node")
-      # Simulation
       winner = self.rollout(node.state)
-      # print("Simulated node")
-      # Backpropagation
       self.backpropagate(node, winner)
-      # print("Backpropagated node")
     end = time.perf_counter()
     print(f"Time taken: {end - start:0.4f} seconds")
     
@@ -58,6 +46,7 @@ class MCTS:
       if(f'{node.state.active_index} : {move}' not in node.children):
         new_state = node.state.make_move(move)
         new_node = Node(new_state, node)
+
         node.children[f'{node.state.active_index} : {move}'] = new_node
 
         if len(valid_moves) == len(node.children):
@@ -85,8 +74,9 @@ class MCTS:
     best_score = -float("inf")
     best_child = None
     for child in node.children.values():
-      if child.state.player.token == 'X': current_player = -1
-      elif child.state.player.token == 'O': current_player = 1
+      print(child.visits, child.reward)
+      if child.state.playerManager.player.token == playerManager.player_1.token: current_player = -1
+      elif child.state.playerManager.player.token == playerManager.player_2.token: current_player = 1
       score = current_player*child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)
       if score > best_score:
         best_score = score
