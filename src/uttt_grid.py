@@ -12,7 +12,7 @@ class UTTTGrid(GridLayout):
         self.cols = 3
         self.spacing = 30
         self.matrix = np.ones(N, dtype=np.int8)*empty_cell
-        self.active_index = 0
+        self.active_index = random.choice(np.where(self.matrix==empty_cell)[0])
         self.AI_active = False
 
         for _ in range(N):
@@ -27,7 +27,16 @@ class UTTTGrid(GridLayout):
     def is_end(self):
         big_winner = GameLogic.get_winner(self.matrix)
         if(big_winner is not None):
-            print(f'Game is finished ! The winner is {big_winner} !')
+            if(big_winner==playerManager.player_1.token_value):
+                output.loc['Player_1', 'win'] += 1
+                output.loc['Player_2', 'loss'] += 1
+            elif(big_winner==playerManager.player_2.token_value):
+                output.loc['Player_2', 'win'] += 1
+                output.loc['Player_1', 'loss'] += 1
+            else:
+                output.loc['Player_1', 'draw'] += 1
+                output.loc['Player_2', 'draw'] += 1
+            output.to_csv("../results/output.csv", sep=';')
             self.disabled = True
             return True
         return False
@@ -63,12 +72,12 @@ class UTTTGrid(GridLayout):
             return
         index = self.get_index(index)
         self.active_index = index
-        if(self.AI_active==True and playerManager.player==playerManager.player_2):
-            thread = Thread(target = self.AI_play, args = [])
+        if(playerManager.player==playerManager.player_2 and self.AI_active):
+            thread = Thread(target=self.AI_play)
             thread.daemon = True
             thread.start()
-        else:
-            self.enable_clickable_cells(index)
+            return
+        self.enable_clickable_cells(index)
     
     def random_play(self):
         if(self.disabled==False):
@@ -79,20 +88,25 @@ class UTTTGrid(GridLayout):
     def get_copy(self):
         return np.array([tttgrid.matrix.copy() for tttgrid in self.children])
 
-    def AI_play(self):
+    def AI_play(self, iterations=1000):
         new_playerManager = playerManager.copy()
         current_matrix = self.get_copy()
         self.current_state = State(current_matrix, self.active_index, new_playerManager, self.matrix.copy())
         tree = MCTS()
-        new_board = tree.search(self.current_state, 1000)
+        new_board = tree.search(self.current_state, iterations)
         index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
         button = self.children[self.active_index].children[index]
         button.trigger_action(0.1)
 
-    def auto_play(self, dt):
-        # if(self.disabled==True):
-        #     App.get_running_app().restart(score = GameLogic.get_winner(self.matrix))
-        if(playerManager.player==playerManager.player_1):
-            self.random_play()
+    def auto_play(self, dt, random_active=True):
+        if(self.disabled==True):
+            App.get_running_app().restart()
+            return
+        
+        # if(playerManager.player==playerManager.player_1 and random_active):
+            # self.random_play()
+        # else:
+        if(playerManager.player==playerManager.player_2):
+            self.AI_play(iterations=500)
         else:
-            self.AI_play()
+            self.AI_play(iterations=1000)

@@ -3,13 +3,16 @@ from __init__ import *
 # Draw the lines when a cell is complete (todo : draw big O and big X)
 class GameRender:
     @staticmethod
+    @mainthread
     def render_winner(instance, winner):
         if(winner==0):
             # GameRender.draw_circle(instance)
             pass
         elif(winner==cross):
+            # pass
             GameRender.draw_cross(instance)
         elif(winner==circle):
+            # pass
             GameRender.draw_circle(instance)
 
     @staticmethod

@@ -25,13 +25,8 @@ class TTTGrid(GridLayout):
     def press(self, instance):
         index = self.children.index(instance)
         self.play(index)
-        self.render()
-
         playerManager.change_player()
+        self.render()
         self.parent.move_to(index)
 
-        # if(self.parent.AI_active==True and playerManager.player==playerManager.player_2):
-        #     # self.parent.AI_play()
-        #     thread = Thread(target = self.parent.AI_play, args = [])
-        #     thread.start()
         
