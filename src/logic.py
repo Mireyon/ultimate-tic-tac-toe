@@ -2,7 +2,7 @@ from __init__ import *
 # Manages the core of the game
 class GameLogic:
     @staticmethod
-    def get_winner(matrix):
+    def get_winner(matrix, playerManager):
         matrix2D = matrix.reshape((3,3))
 
         diagonal = np.sum(np.diagonal(matrix2D))

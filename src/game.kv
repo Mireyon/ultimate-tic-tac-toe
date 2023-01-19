@@ -1,0 +1,55 @@
+#:kivy 2.1.0
+# Put 'difficulty' difficulty
+
+<GameScreen@Screen>:
+    name: 'game'
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            FloatLayout:
+                size_hint: 1, 0.08
+                BackButton:
+                    on_press: 
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'play'
+                Label:
+                    text: 'The Ultimate Tic Tac Toe'
+                    font_name: 'Trebuchet'
+                    font_size: 40
+                    pos_hint: {'center_x': .5, 'center_y': 0.5}
+                    color: 0, 0, 0, 1
+                
+                Label:
+                    text: str(root.difficulty)
+                    font_name: 'Trebuchet'
+                    font_size: 30
+                    pos_hint: {'center_x': .5, 'center_y': -0.2}
+                    color: 0, 0, 0, 1
+
+            AnchorLayout:
+                anchor_x: 'center'
+                anchor_y: 'center'
+                Image:
+                    source: '../assets/background_grid.png'
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: 24, 2, 23, 1
+                    size_hint: 0.7, 0.8
+
+        #Mettre qui est en train de jouer et genre l'ia qui réfléchit
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            size_hint: 0.2, 0.5
+            pos_hint: {'center_x': 0.94, 'center_y': 0.5}
+            # canvas.before:
+            #     Color:
+            #         rgba: 0, 0, 0, 0.2
+            #     Rectangle:
+            #         pos: self.pos
+            #         size: self.size  

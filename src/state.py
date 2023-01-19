@@ -18,7 +18,7 @@ class State():
         board.matrix[board.active_index][move] = board.playerManager.player.token_value
         board.update_board()
         board.active_index = move
-        board.playerManager.change_player()
+        board.playerManager.switch_player()
         return board
 
     def make_random_move(self):
@@ -28,28 +28,30 @@ class State():
 
     def update_board(self):
         small_board = self.matrix[self.active_index]
-        winner = GameLogic.get_winner(small_board)
+        winner = GameLogic.get_winner(small_board, self.playerManager)
         if(winner is not None):
             self.big_matrix[self.active_index] = winner
 
     def get_winner(self):
-        return GameLogic.get_winner(self.big_matrix)
+        return GameLogic.get_winner(self.big_matrix, self.playerManager)
 
     def is_terminal(self):
         return self.get_winner() is not None
 
     def __str__(self) -> str:
         board = ''
+        matrix = np.flip(self.matrix)
+
         for i in range(3):
-            for grid in self.matrix[i*3:i*3+3]:
+            for grid in matrix[i*3:i*3+3]:
                 board += np.array2string(grid[:3]) + ' '
 
             board += '\n'
-            for grid in self.matrix[i*3:i*3+3]:
+            for grid in matrix[i*3:i*3+3]:
                 board += np.array2string(grid[3:6]) + ' '
 
             board += '\n'
-            for grid in self.matrix[i*3:i*3+3]:
+            for grid in matrix[i*3:i*3+3]:
                 board += np.array2string(grid[6:9]) + ' '
 
             board += '\n\n'

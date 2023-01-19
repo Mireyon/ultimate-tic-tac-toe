@@ -59,9 +59,6 @@ class MCTS:
           node.is_fully_expanded = True
         return new_node
 
-    # #Debugging
-    # print("Not good if I arrived here")
-
   def rollout(self, state):
     # Play the game to completion by making random moves
     while not state.is_terminal():
@@ -80,11 +77,18 @@ class MCTS:
     best_score = -float("inf")
     best_child = None
     for child in node.children.values():
-      if child.state.playerManager.player.token == playerManager.player_1.token: current_player = -1
-      elif child.state.playerManager.player.token == playerManager.player_2.token: current_player = 1
-      score = current_player*child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)
+      current_player = -child.state.playerManager.player.token_value
+      score = current_player * child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)
       if score > best_score:
         best_score = score
         best_child = child
 
     return best_child
+
+  def get_policy(self, node):
+      pi = np.zeros((9,9))
+      total_visits = sum([child.visits for child in node.children.values()])
+      for child in node.children.values():
+        move = 8 - np.where((node.state.matrix-child.state.matrix)!=0)[1][0]
+        pi[node.state.active_index][move] = child.visits / total_visits
+      return pi.ravel()

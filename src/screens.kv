@@ -1,0 +1,223 @@
+#:kivy 2.1.0
+#:set credits_text '''Lorem ipsum'''
+
+<StartScreen@Screen>:
+    name: 'start'
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: .5, 1
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            padding: 50
+            spacing: 30
+
+            Label:
+                text: 'Ultimate Tic Tac Toe'
+                font_name: 'Trebuchet'
+                font_size: 50
+                color: 0, 0, 0, 1
+
+            RoundedButton:
+                text: 'Play'
+                on_press: 
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'play'
+
+            RoundedButton:
+                text: 'Settings'
+                on_press: 
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'settings'
+
+            RoundedButton:
+                text: 'Credits'
+                on_press: 
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'credits'
+
+            RoundedButton:
+                text: 'Quit'
+                on_press: app.stop()
+
+            RoundedButton:
+                text: 'Random loop play'
+                on_press: 
+                    root.randomLoopPlay()
+                    root.manager.current = 'game'
+
+<PlayScreen@Screen>:
+    name: 'play'
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            FloatLayout:
+                size_hint: 1, 0.08
+                BackButton:
+                    on_press: 
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'start'
+                Label:
+                    text: 'Play'
+                    font_name: 'Trebuchet'
+                    font_size: 70
+                    pos_hint: {'center_x': .5, 'center_y': 0}
+                    color: 0, 0, 0, 1
+
+            BoxLayout:
+                orientation: 'horizontal'
+                padding: 100, 250
+                spacing: 30
+                RoundedButton:
+                    text: 'Player vs AI'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'levelDifficulty'
+
+                RoundedButton:
+                    text: 'Player vs Player'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.updateDifficulty()
+                        root.manager.current = 'game'
+
+
+<SettingsScreen@Screen>:
+    name: 'settings'
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            FloatLayout:
+                size_hint: 1, 0.08
+                BackButton:
+                    on_press: 
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'start'
+                Label:
+                    text: 'Settings'
+                    font_name: 'Trebuchet'
+                    font_size: 70
+                    pos_hint: {'center_x': .5, 'center_y': 0}
+                    color: 0, 0, 0, 1
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 100, 60
+                spacing: 30
+                RoundedButton:
+                    text: 'Template'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'template'
+                RoundedButton:
+                    text: 'Template'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'template'
+                RoundedButton:
+                    text: 'Template'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'template'
+                RoundedButton:
+                    text: 'Template'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.manager.current = 'template'
+
+<CreditsScreen@Screen>:
+    name: 'credits'
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            FloatLayout:
+                size_hint: 1, 0.08
+                BackButton:
+                    on_press: 
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'start'
+                Label:
+                    text: 'Credits'
+                    font_name: 'Trebuchet'
+                    font_size: 70
+                    pos_hint: {'center_x': .5, 'center_y': 0}
+                    color: 0, 0, 0, 1
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 100, 60
+                spacing: 30
+                Label:
+                    text: credits_text
+                    font_name: 'Trebuchet'
+                    font_size: 20
+                    color: 0, 0, 0, 1
+
+<LevelDifficulty@Screen>:
+    name: 'levelDifficulty'
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            FloatLayout:
+                size_hint: 1, 0.08
+                BackButton:
+                    on_press: 
+                        root.manager.transition.direction = 'right'
+                        root.manager.current = 'play'
+                Label:
+                    text: 'Level difficulty'
+                    font_name: 'Trebuchet'
+                    font_size: 70
+                    pos_hint: {'center_x': .5, 'center_y': 0}
+                    color: 0, 0, 0, 1
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 100, 60
+                spacing: 30
+
+                RoundedButton:
+                    text: 'Easy'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.updateDifficulty('easy')
+                        root.manager.current = 'game'
+
+                RoundedButton:
+                    text: 'Medium'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.updateDifficulty('medium')
+                        root.manager.current = 'game'
+
+                RoundedButton:
+                    text: 'Hard'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.updateDifficulty('hard')
+                        root.manager.current = 'game'
+
+                RoundedButton:
+                    text: 'Impossible'
+                    on_press: 
+                        root.manager.transition.direction = 'left'
+                        root.updateDifficulty('impossible')
+                        root.manager.current = 'game'

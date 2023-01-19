@@ -1,0 +1,26 @@
+#:kivy 2.1.0
+<RoundedButton@Button>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    font_size: 30
+    font_name: 'Trebuchet'
+    canvas.before:
+        Color:
+            rgba: 79/255, 134/255, 198/255, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [30,]
+
+<BackButton@RoundedButton>:
+    text: 'Back'
+    font_size: 20
+    pos_hint: {'center_x': 0.06, 'center_y': 0.5}
+    size_hint: 0.12, 1
+    canvas.before:
+        Color:
+            rgba: 164/255, 48/255, 63/255, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20,]
