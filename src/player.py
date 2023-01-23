@@ -36,17 +36,21 @@ class MctsPlayer(Player):
     def __init__(self, token=None):
         super().__init__(token)
     def move(self, instance):
+        gameScreen = App.get_running_app().screenManager.get_screen("game")
+        gameScreen.start_IA_thinking()
         new_playerManager = instance.playerManager.copy()
         current_matrix = instance.get_copy()
         current_state = State(current_matrix, instance.active_index, new_playerManager, instance.matrix.copy())
         tree = MCTS()
         iterations = 500 if(instance.difficulty=="medium") else 1000
+        iterations = 3000 if(instance.difficulty=="impossible") else iterations
         new_board = tree.search(current_state, iterations)
-        
         Data.add(current_matrix, tree.get_policy(tree.root))
 
         index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
         button = instance.children[instance.active_index].children[index]
+
+        gameScreen.stop_IA_thinking()
         button.trigger_action(0)
 
     def copy(self):

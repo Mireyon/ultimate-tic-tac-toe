@@ -1,5 +1,4 @@
 #:kivy 2.1.0
-# Put 'difficulty' difficulty
 
 <GameScreen@Screen>:
     name: 'game'
@@ -13,6 +12,7 @@
             FloatLayout:
                 size_hint: 1, 0.08
                 BackButton:
+                    text: 'Back' if(root.language == 'English') else 'Retour'
                     on_press: 
                         root.manager.transition.direction = 'right'
                         root.manager.current = 'play'
@@ -24,7 +24,7 @@
                     color: 0, 0, 0, 1
                 
                 Label:
-                    text: str(root.difficulty)
+                    text: str(root.difficulty) 
                     font_name: 'Trebuchet'
                     font_size: 30
                     pos_hint: {'center_x': .5, 'center_y': -0.2}
@@ -37,19 +37,45 @@
                     source: '../assets/background_grid.png'
                     pos_hint: {'center_x': .5, 'center_y': .5}
                 BoxLayout:
+                    id: grid
                     orientation: 'vertical'
                     padding: 24, 2, 23, 1
                     size_hint: 0.7, 0.8
 
-        #Mettre qui est en train de jouer et genre l'ia qui réfléchit
         BoxLayout:
             orientation: 'vertical'
             padding: 20
             size_hint: 0.2, 0.5
             pos_hint: {'center_x': 0.94, 'center_y': 0.5}
-            # canvas.before:
-            #     Color:
-            #         rgba: 0, 0, 0, 0.2
-            #     Rectangle:
-            #         pos: self.pos
-            #         size: self.size  
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, 0.8
+
+                BoxLayout:
+                    id: side_ui
+                    orientation: 'vertical'
+                
+                BoxLayout:
+                    id: player_turn_ui
+                    orientation: 'vertical'
+                    padding: 20
+                    spacing: 20
+                    Label:
+                        text: 'Player turn' if(root.language == 'English') else 'Joueur'
+                        font_name: 'Trebuchet'
+                        font_size: 18
+                        size_hint: 0.8, 1
+                        color: 0, 0, 0, 1
+                    Label:
+                        text: root.current_player
+                        font_name: 'Trebuchet'
+                        font_size: 30
+                        size_hint: 0.8, 1
+                        color: 0, 0, 0, 1
+
+            BoxLayout:
+                id: ia_thinking
+                orientation: 'vertical'
+                size_hint: 0.8, 1
+                padding: 0, 60, 0, 60

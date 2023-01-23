@@ -13,7 +13,6 @@
             radius: [30,]
 
 <BackButton@RoundedButton>:
-    text: 'Back'
     font_size: 20
     pos_hint: {'center_x': 0.06, 'center_y': 0.5}
     size_hint: 0.12, 1
@@ -24,3 +23,33 @@
             pos: self.pos
             size: self.size
             radius: [20,]
+
+<SelectButton@Button>:
+    background_color: 0, 0, 0, 0
+    background_normal: ''
+    font_size: 50
+    size_hint: 0.2, 1
+    # font_name: 'Trebuchet'
+    canvas.before:
+        Color:
+            rgba: 79/255, 134/255, 198/255, 1
+        Ellipse:
+            pos: self.pos[0], self.pos[1] + (self.size[1] - self.size[0])/2
+            size: self.size[0], self.size[0]
+
+<PersonalSlider@Slider>:
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        RoundedRectangle:
+            pos: self.pos[0] + 15, self.pos[1] + self.height / 2 - 5
+            size: self.size[0] - 30 , 7
+            radius: [4,]
+
+<RuleLabel@Label>:
+    size_hint_y: None
+    text_size: self.width, None
+    height: self.texture_size[1]
+    font_name: 'Trebuchet'
+    font_size: 17
+    color: 0, 0, 0, 1

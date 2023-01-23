@@ -114,6 +114,7 @@ class UTTTGrid(GridLayout):
         if(self.is_end()):return
         self.active_index = self.get_index(index)
         self.playerManager.switch_player()
+        App.get_running_app().screenManager.get_screen("game").updatePlayerTurn(self.playerManager)
         self.enable_clickable_cells(self.active_index)
         if(self.difficulty!="loop"): self.play()
 

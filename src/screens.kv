@@ -1,5 +1,17 @@
 #:kivy 2.1.0
-#:set credits_text '''Lorem ipsum'''
+#:set rule_1 '''\u2022 Rule 1 : Each turn, the player must play in the square corresponding to the winning square of the previous turn.'''
+#:set rule_2 '''\u2022 Rule 2: The first player can play in any square on the board.'''
+#:set rule_3 '''\u2022 Rule 3: If a player lines up 3 squares in a small board, he wins that board.'''
+#:set rule_4 '''\u2022 Rule 4: If a player lines up 3 squares on the big board, he wins the game.'''
+#:set rule_5 '''\u2022 Rule 5: If a player is sent to a square that has already been won, he must play in the first free square from the top left.'''
+#:set rule_6 '''\u2022 Rule 6: If a square is filled without any player having won it, it is considered a draw.'''
+
+#:set rule_1_fr '''\u2022 Règle 1 : Chaque tour, le joueur doit jouer dans la case correspondant à la case gagnante du tour précédent.'''
+#:set rule_2_fr '''\u2022 Règle 2 : Le premier joueur peut jouer dans n'importe quelle case du plateau.'''
+#:set rule_3_fr '''\u2022 Règle 3 : Si un joueur aligne 3 cases dans un même carré, il gagne ce carré.'''
+#:set rule_4_fr '''\u2022 Règle 4 : Si un joueur aligne 3 carrés dans un même plateau, il gagne le jeu.'''
+#:set rule_5_fr '''\u2022 Règle 5 : Si un joueur est envoyé dans un carré déjà gagné, il doit jouer dans le premier carré libre en partant du haut à gauche.'''
+#:set rule_6_fr '''\u2022 Règle 6 : Si un carré est rempli sans qu'aucun joueur ne l'ait gagné, il est considéré comme nul.'''
 
 <StartScreen@Screen>:
     name: 'start'
@@ -21,26 +33,40 @@
                 color: 0, 0, 0, 1
 
             RoundedButton:
-                text: 'Play'
+                text: 'Play' if(root.language == 'English') else 'Jouer'
                 on_press: 
                     root.manager.transition.direction = 'left'
                     root.manager.current = 'play'
 
             RoundedButton:
-                text: 'Settings'
+                text: 'Rules' if(root.language == 'English') else 'Règles'
+                on_press: 
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'rules'
+
+            RoundedButton:
+                text: 'Settings' if(root.language == 'English') else 'Paramètres'
                 on_press: 
                     root.manager.transition.direction = 'left'
                     root.manager.current = 'settings'
 
             RoundedButton:
-                text: 'Credits'
-                on_press: 
-                    root.manager.transition.direction = 'left'
-                    root.manager.current = 'credits'
-
-            RoundedButton:
-                text: 'Quit'
+                text: 'Quit' if(root.language == 'English') else 'Quitter'
                 on_press: app.stop()
+
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, 0.6
+                Label:
+                    markup: True
+                    text: '[i]Made by :[/i]' if(root.language == 'English') else '[i]Créé par :[/i]'
+                    font_size: 20
+                    color: 0, 0, 0, 1
+                Label:
+                    markup: True
+                    text: '[i]Xia Rémy & Savino Romain[/i]'
+                    font_size: 20
+                    color: 0, 0, 0, 1
 
             # RoundedButton:
             #     text: 'Random loop play'
@@ -60,11 +86,12 @@
             FloatLayout:
                 size_hint: 1, 0.08
                 BackButton:
+                    text: 'Back' if(root.language == 'English') else 'Retour'
                     on_press: 
                         root.manager.transition.direction = 'right'
                         root.manager.current = 'start'
                 Label:
-                    text: 'Play'
+                    text: 'Play' if(root.language == 'English') else 'Jouer'
                     font_name: 'Trebuchet'
                     font_size: 70
                     pos_hint: {'center_x': .5, 'center_y': 0}
@@ -75,13 +102,13 @@
                 padding: 100, 250
                 spacing: 30
                 RoundedButton:
-                    text: 'Player vs AI'
+                    text: 'Player vs AI' if(root.language == 'English') else 'Joueur vs IA'
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.manager.current = 'levelDifficulty'
 
                 RoundedButton:
-                    text: 'Player vs Player'
+                    text: 'Player vs Player' if(root.language == 'English') else 'Joueur vs Joueur'
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.updateDifficulty()
@@ -100,11 +127,12 @@
             FloatLayout:
                 size_hint: 1, 0.08
                 BackButton:
+                    text: 'Back' if(root.language == 'English') else 'Retour'
                     on_press: 
                         root.manager.transition.direction = 'right'
                         root.manager.current = 'start'
                 Label:
-                    text: 'Settings'
+                    text: 'Settings' if(root.language == 'English') else 'Paramètres'
                     font_name: 'Trebuchet'
                     font_size: 70
                     pos_hint: {'center_x': .5, 'center_y': 0}
@@ -112,31 +140,77 @@
 
             BoxLayout:
                 orientation: 'vertical'
-                padding: 100, 60
+                padding: 100, 150
                 spacing: 30
-                RoundedButton:
-                    text: 'Template'
-                    on_press: 
-                        root.manager.transition.direction = 'left'
-                        root.manager.current = 'template'
-                RoundedButton:
-                    text: 'Template'
-                    on_press: 
-                        root.manager.transition.direction = 'left'
-                        root.manager.current = 'template'
-                RoundedButton:
-                    text: 'Template'
-                    on_press: 
-                        root.manager.transition.direction = 'left'
-                        root.manager.current = 'template'
-                RoundedButton:
-                    text: 'Template'
-                    on_press: 
-                        root.manager.transition.direction = 'left'
-                        root.manager.current = 'template'
 
-<CreditsScreen@Screen>:
-    name: 'credits'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    spacing: 20
+                    SelectButton:
+                        text: '<'
+                        on_press: root.changeMusic(1)
+
+                    Label:
+                        text: root.current_music
+                        font_name: 'Trebuchet'
+                        font_size: 30
+                        color: 0, 0, 0, 1
+                        size_hint: 1, 1
+                        canvas.before:
+                            Color:
+                                rgba: 0, 0, 0, 0.3
+                            RoundedRectangle:
+                                pos: self.pos
+                                size: self.size
+                                radius: [10,]
+
+                    SelectButton:
+                        text: '>'
+                        on_press: root.changeMusic(-1)
+
+                BoxLayout:
+                    orientation: 'horizontal'
+                    BoxLayout:
+                        orientation: 'vertical'
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+                        size_hint: 1, 0.5
+                        Label:
+                            text: 'Volume :' 
+                            font_name: 'Trebuchet'
+                            font_size: 20
+                            color: 0, 0, 0, 1
+                            pos_hint: {'center_x': 0.12, 'center_y': .5}
+                        PersonalSlider:
+                            min: 0
+                            max: 1
+                            value: 0.3
+                            step: 0.01
+                            on_value: root.manageSound(self.value)  
+
+                    BoxLayout:
+                        orientation: 'vertical'
+                        pos_hint: {'center_x': .5, 'center_y': .5}
+                        size_hint: 0.2, 0.5
+                        Label:
+                            text: 'Music' if(root.language == 'English') else 'Musique'
+                            font_name: 'Trebuchet'
+                            font_size: 20
+                            color: 0, 0, 0, 1
+                        CheckBox:
+                            color: 0, 0, 0, 1
+                            active: True
+                            on_state:
+                                root.manageMusic(self.active)
+
+                RoundedButton:
+                    text: root.language
+                    size_hint: 0.5, 1
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+                    on_press: 
+                        root.changeLanguage()
+
+<RulesScreen@Screen>:
+    name: 'rules'
     FloatLayout:
         size_hint: 1, 1
         pos_hint: {'center_x': .5, 'center_y': .5}
@@ -147,11 +221,12 @@
             FloatLayout:
                 size_hint: 1, 0.08
                 BackButton:
+                    text: 'Back' if(root.language == 'English') else 'Retour'
                     on_press: 
                         root.manager.transition.direction = 'right'
                         root.manager.current = 'start'
                 Label:
-                    text: 'Credits'
+                    text: 'Rules' if(root.language == 'English') else 'Règles'
                     font_name: 'Trebuchet'
                     font_size: 70
                     pos_hint: {'center_x': .5, 'center_y': 0}
@@ -161,11 +236,27 @@
                 orientation: 'vertical'
                 padding: 100, 60
                 spacing: 30
-                Label:
-                    text: credits_text
-                    font_name: 'Trebuchet'
-                    font_size: 20
-                    color: 0, 0, 0, 1
+                Image:
+                    source: '../assets/uttt.gif'
+                    allow_stretch: True
+                    pos_hint: {'center_x': .5, 'center_y': .5}
+                    size_hint: 0.7, 0.7
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: 10
+                    RuleLabel:
+                        text: rule_1 if(root.language == 'English') else rule_1_fr
+                    RuleLabel:
+                        text: rule_2 if(root.language == 'English') else rule_2_fr
+                    RuleLabel:
+                        text: rule_3 if(root.language == 'English') else rule_3_fr
+                    RuleLabel:
+                        text: rule_4 if(root.language == 'English') else rule_4_fr
+                    RuleLabel:
+                        text: rule_5 if(root.language == 'English') else rule_5_fr
+                    RuleLabel:
+                        text: rule_6 if(root.language == 'English') else rule_6_fr
 
 <LevelDifficulty@Screen>:
     name: 'levelDifficulty'
@@ -179,13 +270,14 @@
             FloatLayout:
                 size_hint: 1, 0.08
                 BackButton:
+                    text: 'Back' if(root.language == 'English') else 'Retour'
                     on_press: 
                         root.manager.transition.direction = 'right'
                         root.manager.current = 'play'
                 Label:
-                    text: 'Level difficulty'
+                    text: 'Level difficulty' if(root.language == 'English') else 'Niveau de difficulté'
                     font_name: 'Trebuchet'
-                    font_size: 70
+                    font_size: 70 if(root.language == 'English') else 50
                     pos_hint: {'center_x': .5, 'center_y': 0}
                     color: 0, 0, 0, 1
 
@@ -195,28 +287,28 @@
                 spacing: 30
 
                 RoundedButton:
-                    text: 'Easy'
+                    text: 'Easy' if(root.language == 'English') else 'Facile'
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.updateDifficulty('easy')
                         root.manager.current = 'game'
 
                 RoundedButton:
-                    text: 'Medium'
+                    text: 'Medium' if(root.language == 'English') else 'Moyen'
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.updateDifficulty('medium')
                         root.manager.current = 'game'
 
                 RoundedButton:
-                    text: 'Hard'
+                    text: 'Hard' if(root.language == 'English') else 'Difficile'
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.updateDifficulty('hard')
                         root.manager.current = 'game'
 
                 RoundedButton:
-                    text: 'Impossible'
+                    text: 'Impossible' if(root.language == 'English') else 'Impossible'
                     on_press: 
                         root.manager.transition.direction = 'left'
                         root.updateDifficulty('impossible')
