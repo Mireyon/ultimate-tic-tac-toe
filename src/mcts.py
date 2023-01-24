@@ -1,4 +1,4 @@
-from __init__ import *
+from src.imports import *
 
 class Node:
   def __init__(self, state, parent=None, name='child'):
@@ -15,20 +15,14 @@ class Node:
     return str(self.state)
 
 class MCTS:
-  def search(self, state, iterations=100):
+  def search(self, state, iterations=100, c_param=1.4):
     self.root = Node(state, name="root")
-    # rollout_time = 0
-    # start = time.perf_counter()
+    self.c_param = c_param
+
     for _ in range(iterations):
       node = self.select(self.root)
-      # rollout_start = time.perf_counter()
       winner = self.rollout(node.state)
-      # rollout_end = time.perf_counter()
-      # rollout_time += rollout_end - rollout_start
       self.backpropagate(node, winner)
-    # end = time.perf_counter()
-    # print(f"Rollout time taken: {rollout_time:0.4f} seconds")
-    # print(f"Time taken: {end - start:0.4f} seconds")
     
     # # Debugging
     # for child in self.root.children.values():
@@ -72,13 +66,13 @@ class MCTS:
       node.reward += winner
       node = node.parent
 
-  def best_child(self, node, c_param=1.4):
-    # Use the UCB formula to select the next child to explore
+  def best_child(self, node):
+    # Use the UCT formula to select the next child to explore
     best_score = -float("inf")
     best_child = None
     for child in node.children.values():
       current_player = -child.state.playerManager.player.token_value
-      score = current_player * child.reward / child.visits + c_param * math.sqrt(math.log(node.visits) / child.visits)
+      score = current_player * (child.reward / child.visits) + self.c_param * math.sqrt(math.log(node.visits) / child.visits)
       if score > best_score:
         best_score = score
         best_child = child

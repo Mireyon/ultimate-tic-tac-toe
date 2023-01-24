@@ -1,4 +1,4 @@
-from __init__ import *
+from src.imports import *
 
 # Create a small Tic Tac Toe grid with pressable buttons
 class TTTGrid(GridLayout):

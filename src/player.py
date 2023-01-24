@@ -1,6 +1,6 @@
-from mcts import MCTS
-from state import State
-from __init__ import *
+from src.imports import *
+from src.mcts import MCTS
+from src.state import State
 
 class Player(ABC):
     def __init__(self, token=None):
@@ -34,6 +34,7 @@ class RandomPlayer(Player):
 class MctsPlayer(Player):
     def __init__(self, token=None):
         super().__init__(token)
+
     def move(self, instance):
         gameScreen = App.get_running_app().screenManager.get_screen("game")
         gameScreen.start_IA_thinking()
@@ -67,6 +68,8 @@ class PlayerManager:
         elif(self.difficulty=="easy"):
             return RandomPlayer("O")
         elif(self.difficulty=="medium" or self.difficulty=="hard"):
+            return MctsPlayer("O")
+        elif(self.difficulty=="impossible"):
             return MctsPlayer("O")
         else:
             return RandomPlayer("O")

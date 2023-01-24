@@ -1,5 +1,6 @@
-from __init__ import *
-from uttt_grid import UTTTGrid
+from src.imports import *
+from src.uttt_grid import UTTTGrid
+
 class Screen(Screen):
     language = StringProperty("English")
     current_language = "English"
@@ -68,6 +69,7 @@ class LevelDifficulty(Screen):
         self.manager.get_screen('game').updateDifficulty(difficulty)
 
 class GameScreen(Screen):
+    background_path = os.path.join(src_path, "../assets/background_grid.png")
     template = "Difficulty "
     difficulty = StringProperty(template)
     current_player = StringProperty("")

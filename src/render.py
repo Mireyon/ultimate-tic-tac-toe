@@ -1,4 +1,4 @@
-from __init__ import *
+from src.imports import *
 
 class GameRender:
     @staticmethod

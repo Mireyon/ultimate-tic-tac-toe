@@ -1,8 +1,8 @@
-from __init__ import *
-from ttt_grid import TTTGrid
-from logic import GameLogic
-from render import GameRender
-from player import PlayerManager
+from src.imports import *
+from src.ttt_grid import TTTGrid
+from src.logic import GameLogic
+from src.render import GameRender
+from src.player import PlayerManager
 
 # Create the UTTT grid with small TTTs
 class UTTTGrid(GridLayout):

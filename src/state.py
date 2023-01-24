@@ -1,5 +1,5 @@
-from __init__ import *
-from logic import GameLogic
+from src.imports import *
+from src.logic import GameLogic
 
 class State():
     def __init__(self, matrix, active_index, playerManager, big_matrix):
