@@ -1,6 +1,5 @@
 from __init__ import *
 
-# Draw the lines when a cell is complete (todo : draw big O and big X)
 class GameRender:
     @staticmethod
     @mainthread
@@ -45,6 +44,7 @@ class GameRender:
             elif(color=="yellow"):
                 Color(1,1,0,0.2, mode="rgba")
             Rectangle(pos=instance.pos , size=instance.size)
+
     '''
     @staticmethod
     def draw_lines(instance, i, j, width):

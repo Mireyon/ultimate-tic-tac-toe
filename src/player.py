@@ -1,6 +1,5 @@
-from monte_carlo_tree_search import MCTS
+from mcts import MCTS
 from state import State
-from model import Data
 from __init__ import *
 
 class Player(ABC):
@@ -45,7 +44,6 @@ class MctsPlayer(Player):
         iterations = 500 if(instance.difficulty=="medium") else 1000
         iterations = 3000 if(instance.difficulty=="impossible") else iterations
         new_board = tree.search(current_state, iterations)
-        Data.add(current_matrix, tree.get_policy(tree.root))
 
         index = np.where((current_matrix-new_board.state.matrix)!=0)[1][0]
         button = instance.children[instance.active_index].children[index]
@@ -59,7 +57,7 @@ class MctsPlayer(Player):
 class PlayerManager:
     def __init__(self, difficulty=""):
         self.difficulty = difficulty
-        self.player_1 = HumanPlayer("X") if(difficulty!="loop") else MctsPlayer("X")
+        self.player_1 = HumanPlayer("X") if(difficulty!="loop") else RandomPlayer("X")
         self.player_2 = self.get_opposite_player()
         self.player = self.player_1 if(random.randint(0, 1)==0) else self.player_2
 
@@ -71,7 +69,7 @@ class PlayerManager:
         elif(self.difficulty=="medium" or self.difficulty=="hard"):
             return MctsPlayer("O")
         else:
-            return MctsPlayer("O")
+            return RandomPlayer("O")
 
     def switch_player(self):
         self.player = self.player_2 if(self.player==self.player_1) else self.player_1

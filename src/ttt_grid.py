@@ -1,6 +1,4 @@
 from __init__ import *
-from logic import GameLogic
-from render import GameRender
 
 # Create a small Tic Tac Toe grid with pressable buttons
 class TTTGrid(GridLayout):

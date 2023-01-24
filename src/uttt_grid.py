@@ -3,7 +3,6 @@ from ttt_grid import TTTGrid
 from logic import GameLogic
 from render import GameRender
 from player import PlayerManager
-from model import Data
 
 # Create the UTTT grid with small TTTs
 class UTTTGrid(GridLayout):
@@ -25,6 +24,7 @@ class UTTTGrid(GridLayout):
         else:
             self.play()
 
+    # Dev only
     def loop(self, dt):
         if(self.disabled):
             Clock.unschedule(self.loop)
@@ -54,39 +54,16 @@ class UTTTGrid(GridLayout):
     def is_end(self):
         big_winner = GameLogic.get_winner(self.matrix, self.playerManager)
         if(big_winner is not None):
-            # Data.value = big_winner
-            # self.update_data_nn()
-
-            # self.update_csv(big_winner)
+            App.get_running_app().screenManager.get_screen("game").show_winner(self.playerManager)
             self.disabled = True
             return True
         return False
-
-    def update_data_nn(self):
-        for state, policy in zip(Data.states, Data.pis):
-            Data.write_csv(state, policy)
-
-        Data.data.to_csv("../results/data.csv", sep=';', index=False)
-        Data.clear()
-
-    def update_csv(self, winner):
-        if(winner==self.playerManager.player_1.token_value):
-            output.loc['Player_1', 'win'] += 1
-            output.loc['Player_2', 'loss'] += 1
-        elif(winner==self.playerManager.player_2.token_value):
-            output.loc['Player_2', 'win'] += 1
-            output.loc['Player_1', 'loss'] += 1
-        else:
-            output.loc['Player_1', 'draw'] += 1
-            output.loc['Player_2', 'draw'] += 1
-        output.to_csv("../results/output.csv", sep=';')
 
     def get_index(self, index):
         if(self.matrix[index]!=empty_cell):
             index = np.max(np.where(self.matrix==empty_cell))
         return index
 
-    #Only when a real player plays
     def enable_clickable_cells(self, index):
         self.disable_all()
         if(self.difficulty=="" or self.playerManager.player==self.playerManager.player_1):
@@ -111,7 +88,7 @@ class UTTTGrid(GridLayout):
 
     def move_to(self, index):
         self.update_all()
-        if(self.is_end()):return
+        if(self.is_end()): return
         self.active_index = self.get_index(index)
         self.playerManager.switch_player()
         App.get_running_app().screenManager.get_screen("game").updatePlayerTurn(self.playerManager)
