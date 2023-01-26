@@ -18,8 +18,10 @@ class MCTS:
   def search(self, state, iterations=100, c_param=1.4):
     self.root = Node(state, name="root")
     self.c_param = c_param
+    gameScreen = App.get_running_app().screenManager.get_screen("game")
 
-    for _ in range(iterations):
+    for i in range(iterations):
+      gameScreen.IA_thinking((i*100)//iterations)
       node = self.select(self.root)
       winner = self.rollout(node.state)
       self.backpropagate(node, winner)

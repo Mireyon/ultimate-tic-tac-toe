@@ -138,18 +138,20 @@ class GameScreen(Screen):
         thinking_text = "Thinking..." if(self.language == 'English') else "Réfléchit..."
         IA_layout.add_widget(Label(text=thinking_text, font_size=15, font_name="Trebuchet", size_hint=(0.8,1), pos_hint={'center_x':0.5, 'center_y':0.5}, color=(0,0,0,1)))
         IA_layout.add_widget(ProgressBar(max=100, value=0, size_hint=(0.8,0.8), pos_hint={'center_x':0.5, 'center_y':0.5}))
-        Clock.schedule_interval(self.IA_thinking, 0.1)
+        # Clock.schedule_interval(self.IA_thinking, 0.1)
 
-    def IA_thinking(self, dt):
+    @mainthread
+    def IA_thinking(self, value):
         progress_bar = self.ids.ia_thinking.children[0]
-        progress_bar.value += 10
-        if(progress_bar.value >= 100):
-            progress_bar.value = 0
+        if(progress_bar.value!=value):
+            progress_bar.value = value
+            if(progress_bar.value >= 100):
+                progress_bar.value = 0
 
     @mainthread
     def stop_IA_thinking(self):
         IA_layout = self.ids.ia_thinking
-        Clock.unschedule(self.IA_thinking)
+        # Clock.unschedule(self.IA_thinking)
         IA_layout.clear_widgets()
 
     @mainthread
