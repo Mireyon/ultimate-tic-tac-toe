@@ -14,6 +14,8 @@ class TTTGrid(GridLayout):
             self.add_widget(box)
 
     def play(self, index):
+        self.children[index].color = (1,0,0,1) if self.parent.playerManager.player.token == "X" else (0,0,1,1)
+        self.children[index].disabled_color = (1,0,0,1) if self.parent.playerManager.player.token == "X" else (0,0,1,1)
         self.children[index].text = self.parent.playerManager.player.token
         self.matrix[index] = self.parent.playerManager.player.token_value
 
