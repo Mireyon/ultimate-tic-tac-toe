@@ -28,7 +28,7 @@ class UTTTGrid(GridLayout):
     def loop(self, dt):
         if(self.disabled):
             Clock.unschedule(self.loop)
-            App.get_running_app().restart()
+            # App.get_running_app().restart()
             # App.get_running_app().stop()
             return
         self.playerManager.player.move(self)
@@ -54,7 +54,7 @@ class UTTTGrid(GridLayout):
     def is_end(self):
         big_winner = GameLogic.get_winner(self.matrix, self.playerManager)
         if(big_winner is not None):
-            App.get_running_app().screenManager.get_screen("game").show_winner(self.playerManager)
+            App.get_running_app().screenManager.get_screen("game").show_winner(big_winner, self.playerManager)
             self.disabled = True
             return True
         return False

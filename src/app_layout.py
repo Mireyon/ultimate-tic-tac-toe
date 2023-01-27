@@ -155,13 +155,21 @@ class GameScreen(Screen):
         IA_layout.clear_widgets()
 
     @mainthread
-    def show_winner(self, playerManager):
-        winner = playerManager.player.token
+    def show_winner(self, winner, playerManager):
         winner_layout = self.ids.winner_layout
         with winner_layout.canvas:
-            Color(1,0,0,0.4, mode="rgba") if(winner==playerManager.player_1.token) else Color(0,0,1,0.4, mode="rgba")
+            if(winner==0):
+                Color(1,1,0,0.4, mode="rgba")
+            elif(winner==playerManager.player_1.token):
+                Color(1,0,0,0.4, mode="rgba") 
+            else:
+                Color(0,0,1,0.4, mode="rgba")
             Rectangle(pos=winner_layout.pos, size=winner_layout.size)
-        winner_text = "Player "+str(winner)+" wins!" if(self.language == 'English') else "Joueur "+str(winner)+" gagne!"
+
+        if(winner==0):
+            winner_text = "Draw!" if(self.language == 'English') else "Egalité!"
+        else:
+            winner_text = "Player "+str(winner)+" wins!" if(self.language == 'English') else "Joueur "+str(winner)+" gagne!"
         winner_layout.add_widget(Label(text=winner_text, font_size=79, font_name="Trebuchet", size_hint=(0.8,1), pos_hint={'center_x':0.5, 'center_y':0.5}, color=(0,0,0,1)))
         winner_layout.add_widget(Label(text=winner_text, font_size=78, font_name="Trebuchet", size_hint=(0.8,1), pos_hint={'center_x':0.5, 'center_y':0.5}, color=(1,1,1,1)))
 
